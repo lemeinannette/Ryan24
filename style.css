@@ -495,3 +495,38 @@ body.dark-mode #speciesChart {
   font-weight: 700;
   color: var(--text);
 }
+
+/* Fix the Welcome Message alignment */
+#welcome-msg {
+  text-align: right !important; /* Override global center align */
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+/* Style the Role Badge */
+#user-role {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin-top: 4px;
+  /* Background color is set by JS, but this ensures visibility */
+  background-color: var(--text-secondary); 
+}
+
+/* Ensure the right side container aligns correctly */
+.dashboard-header > div:last-child {
+  text-align: right;
+  min-width: 150px; /* Prevents squishing */
+}
+
+/* Dark mode fix for badge text */
+body.dark-mode #welcome-msg {
+  color: var(--text);
+}

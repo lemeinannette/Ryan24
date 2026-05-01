@@ -3,14 +3,23 @@
     {
       "id": "USR-101",
       "fullname": "Jane Mary",
-      "password": "1234"
+      "password": "1234",
+      "role": "Admin"
     },
     {
       "id": "USR-102",
       "fullname": "LEMEIN ANNETTE",
-      "password": "LEMEIN"
+      "password": "LEMEIN",
+      "role": "User"
+    },
+    {
+      "id": "USR-103",
+      "fullname": "RYAN KAGIRI",
+      "password": "Ryan123",
+      "role": "User"
     }
   ],
+  
   "forests": [
     {
       "id": 1,

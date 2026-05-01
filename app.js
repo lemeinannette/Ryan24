@@ -3,15 +3,13 @@
    ========================================== */
 
 // --- 1. CONFIGURATION ---
-const API_URL = "http://localhost:3000"; // Address of your json-server
+const API_URL = "http://localhost:3000"; 
 
-// Helper to GET data from database
 async function getData(endpoint) {
   const res = await fetch(`${API_URL}/${endpoint}`);
   return await res.json();
 }
 
-// Helper to POST/DELETE data to database
 async function sendData(method, endpoint, data = null) {
   const options = {
     method: method,
@@ -23,22 +21,25 @@ async function sendData(method, endpoint, data = null) {
   return await res.json();
 }
 
-// Helper to DELETE data by ID
 async function deleteData(endpoint, id) {
     await fetch(`${API_URL}/${endpoint}/${id}`, { method: 'DELETE' });
 }
 
 // --- 2. AUTHENTICATION ---
 async function login() {
-  const u = document.getElementById("username").value.trim(); // Expects User ID
+  const u = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value;
   const users = await getData("users");
 
   if (users.length === 0) { alert("No users found. Please register."); window.location.href = "register.html"; return; }
 
-  const exists = users.find(user => user.id === u && user.password === p);
+  let exists = users.find(user => user.id === u && user.password === p);
+  
   if (exists) { 
-    localStorage.setItem("loggedInUser", JSON.stringify(exists)); // Use local storage only for session
+    // Safety: Assign 'User' role if missing (for old data compatibility)
+    if (!exists.role) exists.role = "User";
+    
+    localStorage.setItem("loggedInUser", JSON.stringify(exists)); 
     window.location.href = "dashboard.html"; 
   } else { 
     alert("Invalid ID or Password."); 
@@ -60,25 +61,64 @@ async function register() {
   // --- AUTO GENERATE USER ID ---
   const lastId = users.length > 0 ? users[users.length - 1].id : "USR-100";
   const numericPart = parseInt(lastId.split("-")[1]) + 1;
-  const newId = "USR-" + numericPart; // Generates USR-101, USR-102...
+  const newId = "USR-" + numericPart;
+
+  // --- DETERMINE ROLE ---
+  // If database is empty, first user becomes Admin. Otherwise, User.
+  const role = users.length === 0 ? "Admin" : "User";
 
   // Send to DB
-  await sendData("POST", "users", { id: newId, fullname, password });
+  await sendData("POST", "users", { id: newId, fullname, password, role: role });
   
-  alert(`Registration Successful!\n\nYour Login ID is: ${newId}\n\nPlease save this ID to login.`);
+  alert(`Registration Successful!\n\nYour Login ID: ${newId}\nYour Role: ${role}\n\nPlease save this ID.`);
   window.location.href = "index.html";
 }
 
-// Guard
+// Guard: Check if user is logged in
 const protectedPages = ["dashboard.html", "forests.html", "inventory.html", "species.html", "blocks.html"];
 if (protectedPages.some(p => window.location.href.includes(p)) && !localStorage.getItem("loggedInUser")) {
   window.location.href = "index.html";
+}
+
+// --- ROLE ACCESS CONTROL ---
+// Prevents non-Admins from opening specific pages via URL
+const adminOnlyPages = ["forests.html", "blocks.html", "species.html"];
+// Get current page filename (e.g., "forests.html")
+const currentPage = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
+
+if (adminOnlyPages.includes(currentPage)) {
+    const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    // Check if user exists and if they are NOT Admin
+    if (currentUser && currentUser.role !== "Admin") {
+        alert("Access Denied. Admin privileges required.");
+        window.location.href = "dashboard.html";
+    }
 }
 
 // --- 3. DASHBOARD ---
 async function loadDashboard() {
   if(document.getElementById("date")) document.getElementById("date").innerText = new Date().toDateString();
   
+  // --- ROLE CHECK & UI UPDATE ---
+  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const welcomeMsg = document.getElementById("welcome-msg");
+  const userRole = document.getElementById("user-role");
+
+  if (loggedInUser) {
+    if (welcomeMsg) welcomeMsg.innerText = `Welcome, ${loggedInUser.fullname}`;
+    if (userRole) {
+      userRole.innerText = loggedInUser.role || "User";
+      // Set badge color: Green for Admin, Grey for User
+      userRole.style.background = loggedInUser.role === "Admin" ? "var(--green)" : "var(--text-secondary)";
+    }
+
+    // Hide Admin-only elements if not Admin (e.g., Nav links, Forests Table)
+    if (loggedInUser.role !== "Admin") {
+      document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
+    }
+  }
+
+  // Load Stats
   const forests = await getData("forests");
   const species = await getData("species");
   const blocks = await getData("blocks");
@@ -89,6 +129,7 @@ async function loadDashboard() {
   if(document.getElementById("stat-blocks")) document.getElementById("stat-blocks").innerText = blocks.length;
   if(document.getElementById("stat-records")) document.getElementById("stat-records").innerText = inventory.length;
 
+  // Load Tables
   const dashForests = document.getElementById("dash-forests");
   if (dashForests) {
     dashForests.innerHTML = "";
@@ -313,6 +354,10 @@ function renderPieChart(data) {
 
   const colors = [ 'rgba(46, 125, 50, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(233, 30, 99, 0.8)', 'rgba(156, 39, 176, 0.8)' ];
 
+  // Check current theme for text color
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  const textColor = isDarkMode ? '#e2f0e8' : '#1b3a27';
+
   myChart = new Chart(ctx, {
     type: 'pie',
     data: {
@@ -321,25 +366,16 @@ function renderPieChart(data) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: "'Segoe UI', sans-serif", size: 14 }, color: '#1b3a27', padding: 20, usePointStyle: true } } }
+      plugins: { legend: { position: 'bottom', labels: { font: { family: "'Segoe UI', sans-serif", size: 14 }, color: textColor, padding: 20, usePointStyle: true } } }
     }
   });
 }
 
-// --- INIT ---
-window.onload = function() {
-  if (document.getElementById("dash-forests")) loadDashboard();
-  if (document.getElementById("forest-tbody")) loadForests();
-  if (document.getElementById("spec-tbody")) loadSpecies();
-  if (document.getElementById("block-tbody")) loadBlocks();
-  if (document.getElementById("inv-tbody")) loadInventory();
-};
 // --- 9. THEME TOGGLE (DARK/LIGHT MODE) ---
 function loadTheme() {
   const isDark = localStorage.getItem("theme") === "dark";
   if (isDark) {
     document.body.classList.add("dark-mode");
-    // Check if the checkbox exists and set it to checked
     const toggle = document.getElementById("theme-toggle-checkbox");
     if (toggle) toggle.checked = true;
   }
@@ -353,15 +389,18 @@ function toggleTheme(event) {
     document.body.classList.remove("dark-mode");
     localStorage.setItem("theme", "light");
   }
+  // If on inventory page, re-render chart to update text colors
+  if (document.getElementById("inv-tbody")) {
+      loadInventory();
+  }
 }
 
-// Modify the window.onload to also load the theme
+// --- INIT ---
 const originalOnload = window.onload;
 window.onload = function() {
   if (originalOnload) originalOnload();
   loadTheme();
   
-  // Attach event listener to the checkbox if it exists
   const toggle = document.getElementById("theme-toggle-checkbox");
   if (toggle) {
     toggle.addEventListener("change", toggleTheme);

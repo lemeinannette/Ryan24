@@ -1,0 +1,51 @@
+{
+  "users": [
+    {
+      "id": "USR-101",
+      "fullname": "Jane Mary",
+      "password": "1234"
+    }
+  ],
+  "forests": [
+    {
+      "id": 1,
+      "name": "Default Forest",
+      "county": "General",
+      "location": "HQ",
+      "area": 50
+    }
+  ],
+  "species": [
+    {
+      "id": 1,
+      "name": "Oak"
+    },
+    {
+      "id": 2,
+      "name": "Pine"
+    },
+    {
+      "id": 3,
+      "name": "Maple"
+    }
+  ],
+  "blocks": [
+    {
+      "id": 1,
+      "name": "Block A",
+      "forestId": 1,
+      "size": 10
+    }
+  ],
+  "inventory": [
+    {
+      "blockId": "1",
+      "blockName": "Block A",
+      "speciesId": "3",
+      "speciesName": "Maple",
+      "count": 45,
+      "date": "2026-05-01",
+      "id": 1
+    }
+  ]
+}

@@ -1,65 +1,71 @@
 /* ==========================================
-   FOREST INVENTORY SYSTEM - APP.JS
+   FOREST INVENTORY SYSTEM - API VERSION
    ========================================== */
 
-// --- 1. DATA MANAGEMENT ---
-const getData = (key) => JSON.parse(localStorage.getItem(key)) || [];
-const setData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+// --- 1. CONFIGURATION ---
+const API_URL = "http://localhost:3000"; // Address of your json-server
 
-function initSystem() {
-  // 1. Base initialization (runs once)
-  if (!localStorage.getItem("systemInitialized")) {
-    setData("users", []);
-    setData("forests", [ { id: 1, name: "Default Forest", county: "General", location: "HQ", area: 50 } ]);
-    setData("inventory", []);
-    localStorage.setItem("systemInitialized", "true");
-  }
-
-  // 2. Safety Check: Ensure default Species & Blocks exist
-  // This fixes the "N/A" issue if dropdowns were empty
-  let species = getData("species");
-  if (species.length === 0) {
-      setData("species", [ { id: 1, name: "Oak" }, { id: 2, name: "Pine" }, { id: 3, name: "Maple" } ]);
-  }
-
-  let blocks = getData("blocks");
-  if (blocks.length === 0) {
-      // Ensure we reference an existing forest ID (default to 1)
-      setData("blocks", [ { id: 1, name: "Block A", forestId: 1, size: 10 } ]);
-  }
+// Helper to GET data from database
+async function getData(endpoint) {
+  const res = await fetch(`${API_URL}/${endpoint}`);
+  return await res.json();
 }
-initSystem();
+
+// Helper to POST/DELETE data to database
+async function sendData(method, endpoint, data = null) {
+  const options = {
+    method: method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (data) options.body = JSON.stringify(data);
+  
+  const res = await fetch(`${API_URL}/${endpoint}`, options);
+  return await res.json();
+}
+
+// Helper to DELETE data by ID
+async function deleteData(endpoint, id) {
+    await fetch(`${API_URL}/${endpoint}/${id}`, { method: 'DELETE' });
+}
 
 // --- 2. AUTHENTICATION ---
-function login() {
-  const u = document.getElementById("username").value;
+async function login() {
+  const u = document.getElementById("username").value.trim(); // Expects User ID
   const p = document.getElementById("password").value;
-  const users = getData("users");
+  const users = await getData("users");
 
   if (users.length === 0) { alert("No users found. Please register."); window.location.href = "register.html"; return; }
 
-  const exists = users.find(user => user.username === u && user.password === p);
-  if (exists) { localStorage.setItem("loggedInUser", JSON.stringify(exists)); window.location.href = "dashboard.html"; } 
-  else { alert("Invalid credentials."); }
+  const exists = users.find(user => user.id === u && user.password === p);
+  if (exists) { 
+    localStorage.setItem("loggedInUser", JSON.stringify(exists)); // Use local storage only for session
+    window.location.href = "dashboard.html"; 
+  } else { 
+    alert("Invalid ID or Password."); 
+  }
 }
 
 function logout() { localStorage.removeItem("loggedInUser"); window.location.href = "index.html"; }
 
-function register() {
+async function register() {
   const fullname = document.getElementById("reg-fullname").value;
-  const username = document.getElementById("reg-username").value;
   const password = document.getElementById("reg-password").value;
   const confirm = document.getElementById("reg-confirm").value;
 
-  if (!fullname || !username || !password) { alert("All fields required."); return; }
+  if (!fullname || !password) { alert("Full Name and Password required."); return; }
   if (password !== confirm) { alert("Passwords do not match."); return; }
 
-  const users = getData("users");
-  if (users.find(u => u.username === username)) { alert("Username taken."); return; }
+  const users = await getData("users");
+  
+  // --- AUTO GENERATE USER ID ---
+  const lastId = users.length > 0 ? users[users.length - 1].id : "USR-100";
+  const numericPart = parseInt(lastId.split("-")[1]) + 1;
+  const newId = "USR-" + numericPart; // Generates USR-101, USR-102...
 
-  users.push({ fullname, username, password });
-  setData("users", users);
-  alert("Success! Please login.");
+  // Send to DB
+  await sendData("POST", "users", { id: newId, fullname, password });
+  
+  alert(`Registration Successful!\n\nYour Login ID is: ${newId}\n\nPlease save this ID to login.`);
   window.location.href = "index.html";
 }
 
@@ -70,13 +76,13 @@ if (protectedPages.some(p => window.location.href.includes(p)) && !localStorage.
 }
 
 // --- 3. DASHBOARD ---
-function loadDashboard() {
+async function loadDashboard() {
   if(document.getElementById("date")) document.getElementById("date").innerText = new Date().toDateString();
   
-  const forests = getData("forests");
-  const species = getData("species");
-  const blocks = getData("blocks");
-  const inventory = getData("inventory");
+  const forests = await getData("forests");
+  const species = await getData("species");
+  const blocks = await getData("blocks");
+  const inventory = await getData("inventory");
 
   if(document.getElementById("stat-forests")) document.getElementById("stat-forests").innerText = forests.length;
   if(document.getElementById("stat-species")) document.getElementById("stat-species").innerText = species.length;
@@ -101,76 +107,77 @@ function loadDashboard() {
 }
 
 // --- 4. FORESTS ---
-function loadForests() {
+async function loadForests() {
   const tbody = document.getElementById("forest-tbody"); if(!tbody) return;
-  const forests = getData("forests");
+  const forests = await getData("forests");
   tbody.innerHTML = "";
   forests.forEach(f => {
     tbody.innerHTML += `<tr><td>${f.id}</td><td>${f.name}</td><td>${f.location}</td><td>${f.county}</td><td>${f.area}</td><td><button onclick="deleteForest(${f.id})">Delete</button></td></tr>`;
   });
 }
 
-function addForest() {
+async function addForest() {
   const name = document.getElementById("fname").value;
   const location = document.getElementById("flocation").value;
   const county = document.getElementById("fcounty").value;
   const area = document.getElementById("farea").value;
   if (!name || !area) { alert("Name and Area required"); return; }
 
-  const forests = getData("forests");
-  const newId = forests.length > 0 ? forests[forests.length - 1].id + 1 : 1;
-  forests.push({ id: newId, name, location, county, area: parseFloat(area) });
-  setData("forests", forests);
+  await sendData("POST", "forests", { name, location, county, area: parseFloat(area) });
   alert("Forest Added");
   loadForests();
   document.getElementById("fname").value = ""; document.getElementById("flocation").value = ""; document.getElementById("fcounty").value = ""; document.getElementById("farea").value = "";
 }
 
-function deleteForest(id) { if(confirm("Delete?")) { setData("forests", getData("forests").filter(f => f.id !== id)); loadForests(); } }
+async function deleteForest(id) { 
+  if(confirm("Delete?")) { 
+    await deleteData("forests", id);
+    loadForests(); 
+  } 
+}
 
 // --- 5. SPECIES MANAGEMENT ---
-function loadSpecies() {
+async function loadSpecies() {
   const tbody = document.getElementById("spec-tbody");
   if(!tbody) return;
-  const species = getData("species");
+  const species = await getData("species");
   tbody.innerHTML = "";
   species.forEach(s => {
     tbody.innerHTML += `<tr><td>${s.id}</td><td>${s.name}</td><td><button onclick="deleteSpecies(${s.id})">Delete</button></td></tr>`;
   });
 }
 
-function addSpecies() {
+async function addSpecies() {
   const name = document.getElementById("spec-name").value.trim();
   if(!name) { alert("Enter a name"); return; }
-  const species = getData("species");
-  const newId = species.length > 0 ? species[species.length - 1].id + 1 : 1;
-  species.push({ id: newId, name });
-  setData("species", species);
+  await sendData("POST", "species", { name });
   alert("Species Added");
   document.getElementById("spec-name").value = "";
   loadSpecies();
 }
 
-function deleteSpecies(id) { if(confirm("Delete?")) { setData("species", getData("species").filter(s => s.id !== id)); loadSpecies(); } }
+async function deleteSpecies(id) { 
+  if(confirm("Delete?")) { 
+    await deleteData("species", id);
+    loadSpecies(); 
+  } 
+}
 
 // --- 6. BLOCKS MANAGEMENT ---
-function loadBlocks() {
-  // 1. Populate Forest Dropdown
+async function loadBlocks() {
   const forestSelect = document.getElementById("bforest");
-  const forests = getData("forests");
+  const forests = await getData("forests");
   if(forestSelect) {
     forestSelect.innerHTML = forests.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
   }
 
-  // 2. Populate Table
   const tbody = document.getElementById("block-tbody");
   if(!tbody) return;
   
-  const blocks = getData("blocks");
+  const blocks = await getData("blocks");
   tbody.innerHTML = "";
 
   blocks.forEach(b => {
-    // Find Forest Name
     const forest = forests.find(f => f.id == b.forestId);
     const forestName = forest ? forest.name : "N/A";
 
@@ -185,33 +192,24 @@ function loadBlocks() {
   });
 }
 
-function addBlock() {
+async function addBlock() {
   const forestId = document.getElementById("bforest").value;
   const name = document.getElementById("bname").value.trim();
   const size = document.getElementById("bsize").value;
 
   if(!name) { alert("Enter a block name"); return; }
 
-  const blocks = getData("blocks");
-  const newId = blocks.length > 0 ? blocks[blocks.length - 1].id + 1 : 1;
+  await sendData("POST", "blocks", { name, forestId: parseInt(forestId), size: parseFloat(size) || 0 });
   
-  blocks.push({ 
-    id: newId, 
-    name, 
-    forestId: parseInt(forestId), 
-    size: parseFloat(size) || 0 
-  });
-  
-  setData("blocks", blocks);
   alert("Block Added");
   document.getElementById("bname").value = "";
   document.getElementById("bsize").value = "";
   loadBlocks();
 }
 
-function deleteBlock(id) { 
+async function deleteBlock(id) { 
   if(confirm("Delete?")) { 
-    setData("blocks", getData("blocks").filter(b => b.id !== id)); 
+    await deleteData("blocks", id);
     loadBlocks(); 
   } 
 }
@@ -228,35 +226,25 @@ function searchBlocks() {
 // --- 7. INVENTORY & PIE CHART ---
 let myChart = null;
 
-function loadInventory() {
-  // 1. Populate Dropdowns
+async function loadInventory() {
   const blockSelect = document.getElementById("iblock");
   const speciesSelect = document.getElementById("ispecies");
-  const blocks = getData("blocks");
-  const species = getData("species");
+  const blocks = await getData("blocks");
+  const species = await getData("species");
 
-  // Populate Block Dropdown
-  if(blockSelect) {
-    blockSelect.innerHTML = blocks.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
-  }
-  // Populate Species Dropdown
-  if(speciesSelect) {
-    speciesSelect.innerHTML = species.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
-  }
+  if(blockSelect) blockSelect.innerHTML = blocks.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
+  if(speciesSelect) speciesSelect.innerHTML = species.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
 
-  // 2. Load Table
   const tbody = document.getElementById("inv-tbody");
   if(!tbody) return;
 
-  const inventory = getData("inventory");
+  const inventory = await getData("inventory");
   tbody.innerHTML = "";
   let totalTrees = 0;
   const chartData = {}; 
 
   inventory.forEach(rec => {
     totalTrees += parseInt(rec.count);
-    
-    // Aggregate for Chart
     chartData[rec.speciesName] = (chartData[rec.speciesName] || 0) + parseInt(rec.count);
 
     tbody.innerHTML += `
@@ -276,7 +264,7 @@ function loadInventory() {
   renderPieChart(chartData);
 }
 
-function addRecord() {
+async function addRecord() {
   const blockId = document.getElementById("iblock").value;
   const speciesId = document.getElementById("ispecies").value;
   const count = document.getElementById("icount").value;
@@ -284,33 +272,33 @@ function addRecord() {
 
   if(!count || !date) { alert("Fill all fields"); return; }
 
-  // Find Names
-  const blocks = getData("blocks");
-  const species = getData("species");
+  const blocks = await getData("blocks");
+  const species = await getData("species");
   const blockObj = blocks.find(b => b.id == blockId);
   const speciesObj = species.find(s => s.id == speciesId);
 
-  const inventory = getData("inventory");
-  const newId = inventory.length > 0 ? (inventory[inventory.length - 1].id + 1) : 1;
-
-  inventory.push({
-    id: newId,
+  const newRecord = {
     blockId,
     blockName: blockObj ? blockObj.name : "N/A",
     speciesId,
     speciesName: speciesObj ? speciesObj.name : "N/A",
     count: parseInt(count),
     date
-  });
+  };
 
-  setData("inventory", inventory);
+  await sendData("POST", "inventory", newRecord);
   alert("Record Added");
   loadInventory();
   document.getElementById("icount").value = ""; 
   document.getElementById("idate").value = "";
 }
 
-function deleteRecord(id) { if(confirm("Delete?")) { setData("inventory", getData("inventory").filter(r => r.id !== id)); loadInventory(); } }
+async function deleteRecord(id) { 
+  if(confirm("Delete?")) { 
+    await deleteData("inventory", id);
+    loadInventory(); 
+  } 
+}
 
 function searchRecords() {
   const query = document.getElementById("inv-search").value.toLowerCase();
@@ -345,4 +333,37 @@ window.onload = function() {
   if (document.getElementById("spec-tbody")) loadSpecies();
   if (document.getElementById("block-tbody")) loadBlocks();
   if (document.getElementById("inv-tbody")) loadInventory();
+};
+// --- 9. THEME TOGGLE (DARK/LIGHT MODE) ---
+function loadTheme() {
+  const isDark = localStorage.getItem("theme") === "dark";
+  if (isDark) {
+    document.body.classList.add("dark-mode");
+    // Check if the checkbox exists and set it to checked
+    const toggle = document.getElementById("theme-toggle-checkbox");
+    if (toggle) toggle.checked = true;
+  }
+}
+
+function toggleTheme(event) {
+  if (event.target.checked) {
+    document.body.classList.add("dark-mode");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("theme", "light");
+  }
+}
+
+// Modify the window.onload to also load the theme
+const originalOnload = window.onload;
+window.onload = function() {
+  if (originalOnload) originalOnload();
+  loadTheme();
+  
+  // Attach event listener to the checkbox if it exists
+  const toggle = document.getElementById("theme-toggle-checkbox");
+  if (toggle) {
+    toggle.addEventListener("change", toggleTheme);
+  }
 };

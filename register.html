@@ -8,8 +8,17 @@
 
   <div class="form-card">
     <h2>Create Account</h2>
+
+    <!-- Dark Mode Toggle -->
+    <div class="theme-switch-wrapper" style="margin-bottom: 20px;">
+      <label class="theme-switch">
+        <input type="checkbox" id="theme-toggle-checkbox">
+        <div class="slider"></div>
+      </label>
+      <em>Dark Mode</em>
+    </div>
+
     <input type="text" id="reg-fullname" placeholder="Full Name">
-    <input type="text" id="reg-username" placeholder="Username">
     <input type="password" id="reg-password" placeholder="Password">
     <input type="password" id="reg-confirm" placeholder="Confirm Password">
     <button onclick="register()">Register</button>

@@ -4,6 +4,11 @@
       "id": "USR-101",
       "fullname": "Jane Mary",
       "password": "1234"
+    },
+    {
+      "id": "USR-102",
+      "fullname": "LEMEIN ANNETTE",
+      "password": "LEMEIN"
     }
   ],
   "forests": [
@@ -27,6 +32,10 @@
     {
       "id": 3,
       "name": "Maple"
+    },
+    {
+      "name": "Mahogany",
+      "id": 4
     }
   ],
   "blocks": [
@@ -35,6 +44,12 @@
       "name": "Block A",
       "forestId": 1,
       "size": 10
+    },
+    {
+      "name": "Block B",
+      "forestId": 1,
+      "size": 2345,
+      "id": 2
     }
   ],
   "inventory": [
@@ -46,6 +61,15 @@
       "count": 45,
       "date": "2026-05-01",
       "id": 1
+    },
+    {
+      "blockId": "2",
+      "blockName": "Block B",
+      "speciesId": "2",
+      "speciesName": "Pine",
+      "count": 45,
+      "date": "2026-04-27",
+      "id": 2
     }
   ]
 }

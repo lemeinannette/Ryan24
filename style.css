@@ -437,3 +437,61 @@ input:checked + .slider:before {
 body.dark-mode #speciesChart {
     filter: brightness(1.1);
 }
+
+
+/* Header: Title left, Toggle right */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.dashboard-header .header-text h1 {
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.dashboard-header .header-text p {
+  text-align: left;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Align toggle to the right */
+.dashboard-header .theme-switch-wrapper {
+  margin: 0;
+}
+
+/* Stats Grid - Clean Cards */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-box {
+  background: var(--surface);
+  padding: 20px;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--green);
+  box-shadow: var(--shadow);
+}
+
+.stat-box h4 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.stat-box .number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+}

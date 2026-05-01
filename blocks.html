@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blocks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Block Management</h1>
+
+<div class="page-content">
+  
+  <!-- Uniform Form Card -->
+  <div class="form-card">
+    <h3>Add New Block</h3>
+    <div class="form-grid">
+      <select id="bforest"></select>
+      <input type="text" id="bname" placeholder="Block Name">
+      <input type="number" id="bsize" placeholder="Size (ha)">
+    </div>
+    <button onclick="addBlock()">Add Block</button>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="margin:0;">Block List</h3>
+      <input type="text" id="block-search" placeholder="Search..." onkeyup="searchBlocks()" style="width:200px; margin:0;">
+    </div>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Forest</th><th>Size (ha)</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="block-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<hr>
+<p><a href="dashboard.html">Back to Dashboard</a></p>
+
+<script src="app.js"></script>
+</body>
+</html>

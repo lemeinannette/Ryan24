@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Forests</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Forest Management</h1>
+
+<!-- Uniform Form Card -->
+<div class="form-card">
+  <h3>Add New Forest</h3>
+  <input type="text" id="fname" placeholder="Forest Name">
+  <input type="text" id="flocation" placeholder="Location">
+  <input type="text" id="fcounty" placeholder="County">
+  <input type="number" id="farea" placeholder="Area Size (ha)">
+  <button onclick="addForest()">Add Forest</button>
+</div>
+
+<hr>
+
+<div class="table-container">
+  <h3>Forest List</h3>
+  <input type="text" id="forest-search" placeholder="Search forests..." onkeyup="searchForest()" style="margin-bottom:15px; width:100%; max-width:300px;">
+  
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Location</th><th>County</th><th>Area</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="forest-tbody"></tbody>
+  </table>
+</div>
+
+<hr>
+<p><a href="dashboard.html">Back to Dashboard</a></p>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Forest Inventory Dashboard</h1>
+
+<p id="date"></p>
+
+<h3>Statistics</h3>
+
+<p>Total Forests: <span id="stat-forests"></span></p>
+<p>Total Species: <span id="stat-species"></span></p>
+<p>Total Blocks: <span id="stat-blocks"></span></p>
+<p>Total Records: <span id="stat-records"></span></p>
+
+<hr>
+
+<h3>Recent Forests</h3>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>County</th>
+    <th>Area</th>
+  </tr>
+  <tbody id="dash-forests"></tbody>
+</table>
+
+<hr>
+
+<h3>Recent Inventory</h3>
+<table>
+  <tr>
+    <th>Block</th>
+    <th>Species</th>
+    <th>Trees</th>
+    <th>Date</th>
+  </tr>
+  <tbody id="dash-inventory"></tbody>
+</table>
+
+<hr>
+
+<p style="text-align:center">
+  <a href="forests.html" style="color:var(--green);font-weight:600;margin:0 12px">Forests</a>
+  <a href="blocks.html" style="color:var(--green);font-weight:600;margin:0 12px">Blocks</a>
+  <a href="species.html" style="color:var(--green);font-weight:600;margin:0 12px">Species</a>
+  <a href="inventory.html" style="color:var(--green);font-weight:600;margin:0 12px">Inventory</a>
+  <a href="#" onclick="logout()" style="color:var(--danger);font-weight:600;margin:0 12px">Logout</a>
+</p>
+
+<script src="app.js"></script>
+</body>
+</html>

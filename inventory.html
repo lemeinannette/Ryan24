@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inventory Records</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Inventory Records</h1>
+
+<!-- WRAPPER: Centers everything to 900px -->
+<div class="page-content">
+
+  <!-- FORM CARD: Now uses a 2-column grid -->
+  <div class="form-card">
+    <h3>Add New Record</h3>
+    <div class="form-grid">
+      <!-- Row 1 -->
+      <input type="text" id="iblock" placeholder="Block Name (e.g. Block A)">
+      <input type="text" id="ispecies" placeholder="Species (e.g. Oak)">
+      
+      <!-- Row 2 -->
+      <input type="number" id="icount" placeholder="Tree Count">
+      <input type="date" id="idate">
+    </div>
+    <button onclick="addRecord()">Add Record</button>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <p>Total Trees</p>
+      <span id="total-trees">0</span>
+    </div>
+    <div class="stat-card">
+      <p>Total Records</p>
+      <span id="total-records">0</span>
+    </div>
+  </div>
+
+  <!-- PIE CHART CARD -->
+  <div class="chart-card">
+    <h3>Trees Distribution by Species</h3>
+    <div style="position: relative; height: 350px; width: 100%;">
+      <canvas id="speciesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLE CONTAINER -->
+  <div class="table-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="margin: 0;">All Records</h3>
+      <input type="text" id="inv-search" placeholder="Search..." onkeyup="searchRecords()" style="width: 200px; margin:0;">
+    </div>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Block</th><th>Species</th><th>Count</th><th>Date</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+<!-- END WRAPPER -->
+
+<hr>
+<p><a href="dashboard.html">Back to Dashboard</a></p>
+
+<script src="app.js"></script>
+</body>
+</html>

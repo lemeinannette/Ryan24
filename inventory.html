@@ -10,15 +10,6 @@
 
 <h1>Inventory Records</h1>
 
-<!-- Dark Mode Toggle -->
-<div class="theme-switch-wrapper">
-  <label class="theme-switch">
-    <input type="checkbox" id="theme-toggle-checkbox">
-    <div class="slider"></div>
-  </label>
-  <em>Dark Mode</em>
-</div>
-
 <!-- WRAPPER: Centers everything to 900px -->
 <div class="page-content">
 
@@ -26,8 +17,11 @@
   <div class="form-card">
     <h3>Add New Record</h3>
     <div class="form-grid">
-      <select id="iblock"></select>
-      <select id="ispecies"></select>
+      <!-- Row 1 -->
+      <input type="text" id="iblock" placeholder="Block Name (e.g. Block A)">
+      <input type="text" id="ispecies" placeholder="Species (e.g. Oak)">
+      
+      <!-- Row 2 -->
       <input type="number" id="icount" placeholder="Tree Count">
       <input type="date" id="idate">
     </div>

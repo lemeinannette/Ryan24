@@ -530,3 +530,14 @@ body.dark-mode #speciesChart {
 body.dark-mode #welcome-msg {
   color: var(--text);
 }
+
+/* FIX: Ensure Chart Canvas is always visible */
+.chart-card div {
+    height: 350px !important;
+    width: 100% !important;
+}
+
+#speciesChart {
+    width: 100% !important;
+    height: 100% !important;
+}

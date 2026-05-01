@@ -36,9 +36,7 @@ async function login() {
   let exists = users.find(user => user.id === u && user.password === p);
   
   if (exists) { 
-    // Safety: Assign 'User' role if missing (for old data compatibility)
     if (!exists.role) exists.role = "User";
-    
     localStorage.setItem("loggedInUser", JSON.stringify(exists)); 
     window.location.href = "dashboard.html"; 
   } else { 
@@ -57,38 +55,28 @@ async function register() {
   if (password !== confirm) { alert("Passwords do not match."); return; }
 
   const users = await getData("users");
-  
-  // --- AUTO GENERATE USER ID ---
   const lastId = users.length > 0 ? users[users.length - 1].id : "USR-100";
   const numericPart = parseInt(lastId.split("-")[1]) + 1;
   const newId = "USR-" + numericPart;
-
-  // --- DETERMINE ROLE ---
-  // If database is empty, first user becomes Admin. Otherwise, User.
   const role = users.length === 0 ? "Admin" : "User";
 
-  // Send to DB
   await sendData("POST", "users", { id: newId, fullname, password, role: role });
   
-  alert(`Registration Successful!\n\nYour Login ID: ${newId}\nYour Role: ${role}\n\nPlease save this ID.`);
+  alert(`Registration Successful!\n\nYour Login ID: ${newId}\nYour Role: ${role}`);
   window.location.href = "index.html";
 }
 
-// Guard: Check if user is logged in
+// Guard
 const protectedPages = ["dashboard.html", "forests.html", "inventory.html", "species.html", "blocks.html"];
 if (protectedPages.some(p => window.location.href.includes(p)) && !localStorage.getItem("loggedInUser")) {
   window.location.href = "index.html";
 }
 
-// --- ROLE ACCESS CONTROL ---
-// Prevents non-Admins from opening specific pages via URL
+// Role Guard
 const adminOnlyPages = ["forests.html", "blocks.html", "species.html"];
-// Get current page filename (e.g., "forests.html")
 const currentPage = window.location.pathname.split('/').pop() || window.location.href.split('/').pop();
-
 if (adminOnlyPages.includes(currentPage)) {
     const currentUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    // Check if user exists and if they are NOT Admin
     if (currentUser && currentUser.role !== "Admin") {
         alert("Access Denied. Admin privileges required.");
         window.location.href = "dashboard.html";
@@ -99,7 +87,6 @@ if (adminOnlyPages.includes(currentPage)) {
 async function loadDashboard() {
   if(document.getElementById("date")) document.getElementById("date").innerText = new Date().toDateString();
   
-  // --- ROLE CHECK & UI UPDATE ---
   const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
   const welcomeMsg = document.getElementById("welcome-msg");
   const userRole = document.getElementById("user-role");
@@ -108,17 +95,13 @@ async function loadDashboard() {
     if (welcomeMsg) welcomeMsg.innerText = `Welcome, ${loggedInUser.fullname}`;
     if (userRole) {
       userRole.innerText = loggedInUser.role || "User";
-      // Set badge color: Green for Admin, Grey for User
       userRole.style.background = loggedInUser.role === "Admin" ? "var(--green)" : "var(--text-secondary)";
     }
-
-    // Hide Admin-only elements if not Admin (e.g., Nav links, Forests Table)
     if (loggedInUser.role !== "Admin") {
       document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
     }
   }
 
-  // Load Stats
   const forests = await getData("forests");
   const species = await getData("species");
   const blocks = await getData("blocks");
@@ -129,7 +112,6 @@ async function loadDashboard() {
   if(document.getElementById("stat-blocks")) document.getElementById("stat-blocks").innerText = blocks.length;
   if(document.getElementById("stat-records")) document.getElementById("stat-records").innerText = inventory.length;
 
-  // Load Tables
   const dashForests = document.getElementById("dash-forests");
   if (dashForests) {
     dashForests.innerHTML = "";
@@ -221,15 +203,7 @@ async function loadBlocks() {
   blocks.forEach(b => {
     const forest = forests.find(f => f.id == b.forestId);
     const forestName = forest ? forest.name : "N/A";
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${b.id}</td>
-        <td>${b.name}</td>
-        <td>${forestName}</td>
-        <td>${b.size || 0}</td>
-        <td><button onclick="deleteBlock(${b.id})">Delete</button></td>
-      </tr>`;
+    tbody.innerHTML += `<tr><td>${b.id}</td><td>${b.name}</td><td>${forestName}</td><td>${b.size || 0}</td><td><button onclick="deleteBlock(${b.id})">Delete</button></td></tr>`;
   });
 }
 
@@ -237,14 +211,10 @@ async function addBlock() {
   const forestId = document.getElementById("bforest").value;
   const name = document.getElementById("bname").value.trim();
   const size = document.getElementById("bsize").value;
-
   if(!name) { alert("Enter a block name"); return; }
-
   await sendData("POST", "blocks", { name, forestId: parseInt(forestId), size: parseFloat(size) || 0 });
-  
   alert("Block Added");
-  document.getElementById("bname").value = "";
-  document.getElementById("bsize").value = "";
+  document.getElementById("bname").value = ""; document.getElementById("bsize").value = "";
   loadBlocks();
 }
 
@@ -258,24 +228,13 @@ async function deleteBlock(id) {
 function searchBlocks() {
   const query = document.getElementById("block-search").value.toLowerCase();
   const rows = document.querySelectorAll("#block-tbody tr");
-  rows.forEach(row => {
-    const text = row.innerText.toLowerCase();
-    row.style.display = text.includes(query) ? "" : "none";
-  });
+  rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none"; });
 }
 
 // --- 7. INVENTORY & PIE CHART ---
 let myChart = null;
 
 async function loadInventory() {
-  const blockSelect = document.getElementById("iblock");
-  const speciesSelect = document.getElementById("ispecies");
-  const blocks = await getData("blocks");
-  const species = await getData("species");
-
-  if(blockSelect) blockSelect.innerHTML = blocks.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
-  if(speciesSelect) speciesSelect.innerHTML = species.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
-
   const tbody = document.getElementById("inv-tbody");
   if(!tbody) return;
 
@@ -285,18 +244,16 @@ async function loadInventory() {
   const chartData = {}; 
 
   inventory.forEach(rec => {
-    totalTrees += parseInt(rec.count);
-    chartData[rec.speciesName] = (chartData[rec.speciesName] || 0) + parseInt(rec.count);
+    // Ensure count is a number
+    const countVal = parseInt(rec.count) || 0;
+    totalTrees += countVal;
+    
+    // Use "Unknown" if name is missing
+    const sName = rec.speciesName || "Unknown";
+    
+    chartData[sName] = (chartData[sName] || 0) + countVal;
 
-    tbody.innerHTML += `
-      <tr>
-        <td>${rec.id}</td>
-        <td>${rec.blockName || 'N/A'}</td>
-        <td>${rec.speciesName || 'N/A'}</td>
-        <td>${rec.count}</td>
-        <td>${rec.date}</td>
-        <td><button onclick="deleteRecord(${rec.id})">Delete</button></td>
-      </tr>`;
+    tbody.innerHTML += `<tr><td>${rec.id}</td><td>${rec.blockName || 'N/A'}</td><td>${sName}</td><td>${countVal}</td><td>${rec.date}</td><td><button onclick="deleteRecord(${rec.id})">Delete</button></td></tr>`;
   });
 
   if(document.getElementById("total-trees")) document.getElementById("total-trees").innerText = totalTrees;
@@ -306,30 +263,35 @@ async function loadInventory() {
 }
 
 async function addRecord() {
-  const blockId = document.getElementById("iblock").value;
-  const speciesId = document.getElementById("ispecies").value;
+  const blockName = document.getElementById("iblock").value.trim();
+  const speciesName = document.getElementById("ispecies").value.trim();
   const count = document.getElementById("icount").value;
   const date = document.getElementById("idate").value;
 
-  if(!count || !date) { alert("Fill all fields"); return; }
+  if(!blockName || !speciesName || !count || !date) { 
+      alert("Please fill in all fields."); 
+      return; 
+  }
 
-  const blocks = await getData("blocks");
-  const species = await getData("species");
-  const blockObj = blocks.find(b => b.id == blockId);
-  const speciesObj = species.find(s => s.id == speciesId);
+  const inventory = await getData("inventory");
+  const newId = inventory.length > 0 ? (inventory[inventory.length - 1].id + 1) : 1;
 
   const newRecord = {
-    blockId,
-    blockName: blockObj ? blockObj.name : "N/A",
-    speciesId,
-    speciesName: speciesObj ? speciesObj.name : "N/A",
-    count: parseInt(count),
-    date
+      id: newId,
+      blockName,
+      speciesName,
+      count: parseInt(count),
+      date
   };
 
   await sendData("POST", "inventory", newRecord);
   alert("Record Added");
-  loadInventory();
+  
+  // AWAIT loadInventory to ensure chart updates after DB save
+  await loadInventory();
+  
+  document.getElementById("iblock").value = ""; 
+  document.getElementById("ispecies").value = "";
   document.getElementById("icount").value = ""; 
   document.getElementById("idate").value = "";
 }
@@ -337,7 +299,7 @@ async function addRecord() {
 async function deleteRecord(id) { 
   if(confirm("Delete?")) { 
     await deleteData("inventory", id);
-    loadInventory(); 
+    await loadInventory(); 
   } 
 }
 
@@ -350,23 +312,58 @@ function searchRecords() {
 function renderPieChart(data) {
   const ctx = document.getElementById('speciesChart');
   if (!ctx) return;
-  if (myChart) myChart.destroy();
+  
+  // Destroy previous chart instance
+  if (myChart) {
+      myChart.destroy();
+  }
 
-  const colors = [ 'rgba(46, 125, 50, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(33, 150, 243, 0.8)', 'rgba(233, 30, 99, 0.8)', 'rgba(156, 39, 176, 0.8)' ];
+  const labels = Object.keys(data);
+  const values = Object.values(data);
 
-  // Check current theme for text color
+  // Dynamic Color Generation based on number of items
+  const baseColors = [
+    'rgba(46, 125, 50, 0.8)', 
+    'rgba(255, 193, 7, 0.8)', 
+    'rgba(33, 150, 243, 0.8)', 
+    'rgba(233, 30, 99, 0.8)', 
+    'rgba(156, 39, 176, 0.8)',
+    'rgba(0, 188, 212, 0.8)',
+    'rgba(255, 87, 34, 0.8)'
+  ];
+  
+  // Map colors so we never run out
+  const backgroundColors = labels.map((_, i) => baseColors[i % baseColors.length]);
+
   const isDarkMode = document.body.classList.contains("dark-mode");
   const textColor = isDarkMode ? '#e2f0e8' : '#1b3a27';
 
   myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: Object.keys(data),
-      datasets: [{ data: Object.values(data), backgroundColor: colors, borderColor: '#ffffff', borderWidth: 4, hoverOffset: 15 }]
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: backgroundColors,
+        borderColor: isDarkMode ? '#132a1c' : '#ffffff',
+        borderWidth: 4,
+        hoverOffset: 15
+      }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { font: { family: "'Segoe UI', sans-serif", size: 14 }, color: textColor, padding: 20, usePointStyle: true } } }
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { 
+          position: 'bottom', 
+          labels: { 
+            font: { family: "'Segoe UI', sans-serif", size: 14 }, 
+            color: textColor, 
+            padding: 20, 
+            usePointStyle: true 
+          } 
+        } 
+      }
     }
   });
 }
@@ -389,10 +386,8 @@ function toggleTheme(event) {
     document.body.classList.remove("dark-mode");
     localStorage.setItem("theme", "light");
   }
-  // If on inventory page, re-render chart to update text colors
-  if (document.getElementById("inv-tbody")) {
-      loadInventory();
-  }
+  // Refresh chart colors immediately
+  if (document.getElementById("inv-tbody")) loadInventory();
 }
 
 // --- INIT ---
@@ -400,9 +395,28 @@ const originalOnload = window.onload;
 window.onload = function() {
   if (originalOnload) originalOnload();
   loadTheme();
-  
+  const toggle = document.getElementById("theme-toggle-checkbox");
+  if (toggle) toggle.addEventListener("change", toggleTheme);
+};
+// --- INIT ---
+// We must define the logic first
+const appInit = function() {
+  // 1. LOAD THEME FIRST (So colors are correct before drawing charts)
+  loadTheme();
+
+  // 2. THEN LOAD DATA (Charts will now have correct colors)
+  if (document.getElementById("dash-forests")) loadDashboard();
+  if (document.getElementById("forest-tbody")) loadForests();
+  if (document.getElementById("spec-tbody")) loadSpecies();
+  if (document.getElementById("block-tbody")) loadBlocks();
+  if (document.getElementById("inv-tbody")) loadInventory();
+
+  // 3. Setup Toggle Listener
   const toggle = document.getElementById("theme-toggle-checkbox");
   if (toggle) {
     toggle.addEventListener("change", toggleTheme);
   }
 };
+
+// Assign to onload
+window.onload = appInit;

@@ -19,7 +19,6 @@
       "role": "User"
     }
   ],
-  
   "forests": [
     {
       "id": 1,
@@ -43,8 +42,12 @@
       "name": "Maple"
     },
     {
-      "name": "Mahogany",
-      "id": 4
+      "id": 4,
+      "name": "Mahogany"
+    },
+    {
+      "id": 5,
+      "name": "Cactus"
     }
   ],
   "blocks": [
@@ -55,30 +58,54 @@
       "size": 10
     },
     {
+      "id": 2,
       "name": "Block B",
       "forestId": 1,
-      "size": 2345,
-      "id": 2
+      "size": 20
     }
   ],
   "inventory": [
     {
-      "blockId": "1",
+      "id": 1,
       "blockName": "Block A",
-      "speciesId": "3",
       "speciesName": "Maple",
       "count": 45,
-      "date": "2026-05-01",
-      "id": 1
+      "date": "2026-05-01"
     },
     {
-      "blockId": "2",
+      "id": 2,
       "blockName": "Block B",
-      "speciesId": "2",
       "speciesName": "Pine",
-      "count": 45,
-      "date": "2026-04-27",
-      "id": 2
+      "count": 120,
+      "date": "2026-04-27"
+    },
+    {
+      "id": 3,
+      "blockName": "Block A",
+      "speciesName": "Oak",
+      "count": 80,
+      "date": "2026-04-28"
+    },
+    {
+      "id": 4,
+      "blockName": "Block B",
+      "speciesName": "Mahogany",
+      "count": 30,
+      "date": "2026-04-29"
+    },
+    {
+      "id": 5,
+      "blockName": "Block A",
+      "speciesName": "Cactus",
+      "count": 15,
+      "date": "2026-04-30"
+    },
+    {
+      "id": 6,
+      "blockName": "Block A",
+      "speciesName": "CACTUS",
+      "count": 5,
+      "date": "2026-05-01"
     }
   ]
 }

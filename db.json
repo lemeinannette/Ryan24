@@ -3,19 +3,31 @@
     {
       "id": "USR-101",
       "fullname": "Jane Mary",
-      "password": "1234",
+      "password": "Admin@123",
       "role": "Admin"
     },
     {
       "id": "USR-102",
       "fullname": "LEMEIN ANNETTE",
-      "password": "LEMEIN",
+      "password": "Lemein@1",
       "role": "User"
     },
     {
       "id": "USR-103",
       "fullname": "RYAN KAGIRI",
-      "password": "Ryan123",
+      "password": "Ryan@123",
+      "role": "User"
+    },
+    {
+      "id": "USR-104",
+      "fullname": "Jacob Jane",
+      "password": "Jane@123",
+      "role": "User"
+    },
+    {
+      "id": "USR-105",
+      "fullname": "LEMEIN ANNETTE",
+      "password": "Lemein@1",
       "role": "User"
     }
   ],
@@ -103,7 +115,7 @@
     {
       "id": 6,
       "blockName": "Block A",
-      "speciesName": "CACTUS",
+      "speciesName": "Cactus",
       "count": 5,
       "date": "2026-05-01"
     }

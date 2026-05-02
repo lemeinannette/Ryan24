@@ -1,6 +1,3 @@
-/* ==========================================
-   FOREST INVENTORY SYSTEM - API VERSION
-   ========================================== */
 
 // --- 1. CONFIGURATION ---
 const API_URL = "http://localhost:3000"; 
@@ -46,6 +43,13 @@ async function login() {
 
 function logout() { localStorage.removeItem("loggedInUser"); window.location.href = "index.html"; }
 
+// --- Password Strength Validator ---
+function isStrongPassword(password) {
+    // Min 8 chars, 1 Uppercase, 1 Number, 1 Special Char
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    return regex.test(password);
+}
+
 async function register() {
   const fullname = document.getElementById("reg-fullname").value;
   const password = document.getElementById("reg-password").value;
@@ -53,6 +57,12 @@ async function register() {
 
   if (!fullname || !password) { alert("Full Name and Password required."); return; }
   if (password !== confirm) { alert("Passwords do not match."); return; }
+  
+  // Check Password Strength
+  if (!isStrongPassword(password)) {
+      alert("Password is too weak!\n\nMust be:\n- At least 8 characters\n- 1 Uppercase letter\n- 1 Number\n- 1 Special character (!@#$% etc)");
+      return;
+  }
 
   const users = await getData("users");
   const lastId = users.length > 0 ? users[users.length - 1].id : "USR-100";
@@ -81,6 +91,12 @@ if (adminOnlyPages.includes(currentPage)) {
         alert("Access Denied. Admin privileges required.");
         window.location.href = "dashboard.html";
     }
+}
+
+// Helper to check Admin Role
+function isAdmin() {
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    return user && user.role === "Admin";
 }
 
 // --- 3. DASHBOARD ---
@@ -135,8 +151,19 @@ async function loadForests() {
   const forests = await getData("forests");
   tbody.innerHTML = "";
   forests.forEach(f => {
-    tbody.innerHTML += `<tr><td>${f.id}</td><td>${f.name}</td><td>${f.location}</td><td>${f.county}</td><td>${f.area}</td><td><button onclick="deleteForest(${f.id})">Delete</button></td></tr>`;
+    let actions = '';
+    if(isAdmin()) {
+        actions = `<button onclick="deleteForest(${f.id})">Delete</button>`;
+    } else {
+        actions = '<span style="color:var(--text-muted); font-size:0.8rem;">Read Only</span>';
+    }
+    tbody.innerHTML += `<tr><td>${f.id}</td><td>${f.name}</td><td>${f.location}</td><td>${f.county}</td><td>${f.area}</td><td>${actions}</td></tr>`;
   });
+
+  if (!isAdmin()) {
+      const card = document.querySelector('.form-card');
+      if(card) card.style.display = 'none';
+  }
 }
 
 async function addForest() {
@@ -166,8 +193,19 @@ async function loadSpecies() {
   const species = await getData("species");
   tbody.innerHTML = "";
   species.forEach(s => {
-    tbody.innerHTML += `<tr><td>${s.id}</td><td>${s.name}</td><td><button onclick="deleteSpecies(${s.id})">Delete</button></td></tr>`;
+    let actions = '';
+    if(isAdmin()) {
+        actions = `<button onclick="deleteSpecies(${s.id})">Delete</button>`;
+    } else {
+        actions = '<span style="color:var(--text-muted); font-size:0.8rem;">Read Only</span>';
+    }
+    tbody.innerHTML += `<tr><td>${s.id}</td><td>${s.name}</td><td>${actions}</td></tr>`;
   });
+
+  if (!isAdmin()) {
+      const card = document.querySelector('.form-card');
+      if(card) card.style.display = 'none';
+  }
 }
 
 async function addSpecies() {
@@ -203,8 +241,21 @@ async function loadBlocks() {
   blocks.forEach(b => {
     const forest = forests.find(f => f.id == b.forestId);
     const forestName = forest ? forest.name : "N/A";
-    tbody.innerHTML += `<tr><td>${b.id}</td><td>${b.name}</td><td>${forestName}</td><td>${b.size || 0}</td><td><button onclick="deleteBlock(${b.id})">Delete</button></td></tr>`;
+    
+    let actions = '';
+    if(isAdmin()) {
+        actions = `<button onclick="deleteBlock(${b.id})">Delete</button>`;
+    } else {
+        actions = '<span style="color:var(--text-muted); font-size:0.8rem;">Read Only</span>';
+    }
+    
+    tbody.innerHTML += `<tr><td>${b.id}</td><td>${b.name}</td><td>${forestName}</td><td>${b.size || 0}</td><td>${actions}</td></tr>`;
   });
+
+  if (!isAdmin()) {
+      const card = document.querySelector('.form-card');
+      if(card) card.style.display = 'none';
+  }
 }
 
 async function addBlock() {
@@ -244,15 +295,10 @@ async function loadInventory() {
   const chartData = {}; 
 
   inventory.forEach(rec => {
-    // Ensure count is a number
     const countVal = parseInt(rec.count) || 0;
     totalTrees += countVal;
-    
-    // Use "Unknown" if name is missing
     const sName = rec.speciesName || "Unknown";
-    
     chartData[sName] = (chartData[sName] || 0) + countVal;
-
     tbody.innerHTML += `<tr><td>${rec.id}</td><td>${rec.blockName || 'N/A'}</td><td>${sName}</td><td>${countVal}</td><td>${rec.date}</td><td><button onclick="deleteRecord(${rec.id})">Delete</button></td></tr>`;
   });
 
@@ -286,8 +332,6 @@ async function addRecord() {
 
   await sendData("POST", "inventory", newRecord);
   alert("Record Added");
-  
-  // AWAIT loadInventory to ensure chart updates after DB save
   await loadInventory();
   
   document.getElementById("iblock").value = ""; 
@@ -313,15 +357,11 @@ function renderPieChart(data) {
   const ctx = document.getElementById('speciesChart');
   if (!ctx) return;
   
-  // Destroy previous chart instance
-  if (myChart) {
-      myChart.destroy();
-  }
+  if (myChart) myChart.destroy();
 
   const labels = Object.keys(data);
   const values = Object.values(data);
 
-  // Dynamic Color Generation based on number of items
   const baseColors = [
     'rgba(46, 125, 50, 0.8)', 
     'rgba(255, 193, 7, 0.8)', 
@@ -332,7 +372,6 @@ function renderPieChart(data) {
     'rgba(255, 87, 34, 0.8)'
   ];
   
-  // Map colors so we never run out
   const backgroundColors = labels.map((_, i) => baseColors[i % baseColors.length]);
 
   const isDarkMode = document.body.classList.contains("dark-mode");
@@ -386,37 +425,20 @@ function toggleTheme(event) {
     document.body.classList.remove("dark-mode");
     localStorage.setItem("theme", "light");
   }
-  // Refresh chart colors immediately
   if (document.getElementById("inv-tbody")) loadInventory();
 }
 
 // --- INIT ---
-const originalOnload = window.onload;
-window.onload = function() {
-  if (originalOnload) originalOnload();
-  loadTheme();
-  const toggle = document.getElementById("theme-toggle-checkbox");
-  if (toggle) toggle.addEventListener("change", toggleTheme);
-};
-// --- INIT ---
-// We must define the logic first
 const appInit = function() {
-  // 1. LOAD THEME FIRST (So colors are correct before drawing charts)
   loadTheme();
-
-  // 2. THEN LOAD DATA (Charts will now have correct colors)
   if (document.getElementById("dash-forests")) loadDashboard();
   if (document.getElementById("forest-tbody")) loadForests();
   if (document.getElementById("spec-tbody")) loadSpecies();
   if (document.getElementById("block-tbody")) loadBlocks();
   if (document.getElementById("inv-tbody")) loadInventory();
 
-  // 3. Setup Toggle Listener
   const toggle = document.getElementById("theme-toggle-checkbox");
-  if (toggle) {
-    toggle.addEventListener("change", toggleTheme);
-  }
+  if (toggle) toggle.addEventListener("change", toggleTheme);
 };
 
-// Assign to onload
 window.onload = appInit;

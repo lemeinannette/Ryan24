@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Register - Forest System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-page">
@@ -9,7 +11,6 @@
   <div class="form-card">
     <h2>Create Account</h2>
 
-    <!-- Dark Mode Toggle -->
     <div class="theme-switch-wrapper" style="margin-bottom: 20px;">
       <label class="theme-switch">
         <input type="checkbox" id="theme-toggle-checkbox">
@@ -19,14 +20,24 @@
     </div>
 
     <input type="text" id="reg-fullname" placeholder="Full Name">
+
+    <!-- FIX: Added User ID field so users can log in after registering -->
+    <input type="text" id="reg-username" placeholder="User ID (e.g. USR-101)">
+
     <input type="password" id="reg-password" placeholder="Password">
-    
-    <!-- Password Requirements Text -->
-    <p style="font-size: 0.75rem; color: var(--text-muted); text-align: left; margin-top: -10px; margin-bottom: 15px;">
-      * Password must be min 8 chars, include Uppercase, Number & Special char.
-    </p>
+    <div class="show-password-row">
+      <input type="checkbox" id="show-pw1" onclick="togglePassword('reg-password')" style="width: auto; margin: 0;">
+      <label for="show-pw1">Show Password</label>
+    </div>
+
+    <p class="hint-text">* Min 8 chars, include uppercase, number &amp; special character.</p>
 
     <input type="password" id="reg-confirm" placeholder="Confirm Password">
+    <div class="show-password-row">
+      <input type="checkbox" id="show-pw2" onclick="togglePassword('reg-confirm')" style="width: auto; margin: 0;">
+      <label for="show-pw2">Show Password</label>
+    </div>
+
     <button onclick="register()">Register</button>
     <p style="margin-top: 20px;">Already have an account? <a href="index.html">Login here</a></p>
   </div>

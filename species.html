@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Manage Species</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Species — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h1>Species Management</h1>
 
-<!-- Dark Mode Toggle -->
 <div class="theme-switch-wrapper">
   <label class="theme-switch">
     <input type="checkbox" id="theme-toggle-checkbox">
@@ -18,14 +19,13 @@
 </div>
 
 <div class="page-content">
-  <!-- Uniform Form Card -->
+
   <div class="form-card">
     <h3>Add New Species</h3>
     <input type="text" id="spec-name" placeholder="Species Name (e.g. Mahogany)">
     <button onclick="addSpecies()">Add Species</button>
   </div>
 
-  <!-- Table Container -->
   <div class="table-container">
     <h3>Species List</h3>
     <table>
@@ -39,6 +39,7 @@
       <tbody id="spec-tbody"></tbody>
     </table>
   </div>
+
 </div>
 
 <hr>

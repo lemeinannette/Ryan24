@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Blocks</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blocks — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h1>Block Management</h1>
 
-<!-- Dark Mode Toggle Switch -->
 <div class="theme-switch-wrapper">
   <label class="theme-switch">
     <input type="checkbox" id="theme-toggle-checkbox">
@@ -18,8 +19,7 @@
 </div>
 
 <div class="page-content">
-  
-  <!-- Uniform Form Card -->
+
   <div class="form-card">
     <h3>Add New Block</h3>
     <div class="form-grid">
@@ -30,13 +30,13 @@
     <button onclick="addBlock()">Add Block</button>
   </div>
 
-  <!-- Table Container -->
   <div class="table-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <h3 style="margin:0;">Block List</h3>
-      <input type="text" id="block-search" placeholder="Search..." onkeyup="searchBlocks()" style="width:200px; margin:0;">
+    <!-- FIX: Removed inline margin:0 on search input — let stylesheet handle spacing -->
+    <div class="table-header">
+      <h3>Block List</h3>
+      <input type="text" id="block-search" placeholder="Search..." onkeyup="searchBlocks()">
     </div>
-    
+
     <table>
       <thead>
         <tr>

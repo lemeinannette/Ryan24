@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login - Forest System</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-page">
 
   <div class="form-card">
     <h2>Forest Inventory</h2>
-    
-    <!-- Dark Mode Toggle -->
+
     <div class="theme-switch-wrapper" style="margin-bottom: 20px;">
       <label class="theme-switch">
         <input type="checkbox" id="theme-toggle-checkbox">
@@ -18,8 +19,15 @@
       <em>Dark Mode</em>
     </div>
 
+    <!-- User ID field (matches register.html) -->
     <input type="text" id="username" placeholder="User ID (e.g. USR-101)">
+
     <input type="password" id="password" placeholder="Password">
+    <div class="show-password-row">
+      <input type="checkbox" id="show-pw" onclick="togglePassword('password')" style="width: auto; margin: 0;">
+      <label for="show-pw">Show Password</label>
+    </div>
+
     <button onclick="login()">Login</button>
     <p style="margin-top: 20px;">Don't have an account? <a href="register.html">Register here</a></p>
   </div>

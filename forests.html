@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Forests</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forests — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h1>Forest Management</h1>
 
-<!-- Dark Mode Toggle -->
 <div class="theme-switch-wrapper">
   <label class="theme-switch">
     <input type="checkbox" id="theme-toggle-checkbox">
@@ -17,30 +18,33 @@
   <em>Dark Mode</em>
 </div>
 
-<!-- Uniform Form Card -->
-<div class="form-card">
-  <h3>Add New Forest</h3>
-  <input type="text" id="fname" placeholder="Forest Name">
-  <input type="text" id="flocation" placeholder="Location">
-  <input type="text" id="fcounty" placeholder="County">
-  <input type="number" id="farea" placeholder="Area Size (ha)">
-  <button onclick="addForest()">Add Forest</button>
-</div>
+<div class="page-content">
 
-<hr>
+  <div class="form-card">
+    <h3>Add New Forest</h3>
+    <input type="text" id="fname" placeholder="Forest Name">
+    <input type="text" id="flocation" placeholder="Location">
+    <input type="text" id="fcounty" placeholder="County">
+    <input type="number" id="farea" placeholder="Area Size (ha)">
+    <button onclick="addForest()">Add Forest</button>
+  </div>
 
-<div class="table-container">
-  <h3>Forest List</h3>
-  <input type="text" id="forest-search" placeholder="Search forests..." onkeyup="searchForest()" style="margin-bottom:15px; width:100%; max-width:300px;">
-  
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th><th>Name</th><th>Location</th><th>County</th><th>Area</th><th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="forest-tbody"></tbody>
-  </table>
+  <div class="table-container">
+    <div class="table-header">
+      <h3>Forest List</h3>
+      <input type="text" id="forest-search" placeholder="Search forests..." onkeyup="searchForest()">
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Location</th><th>County</th><th>Area</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="forest-tbody"></tbody>
+    </table>
+  </div>
+
 </div>
 
 <hr>

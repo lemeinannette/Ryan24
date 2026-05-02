@@ -1,34 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Inventory Records</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Records — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <h1>Inventory Records</h1>
 
-<!-- WRAPPER: Centers everything to 900px -->
 <div class="page-content">
 
-  <!-- FORM CARD: Now uses a 2-column grid -->
   <div class="form-card">
     <h3>Add New Record</h3>
     <div class="form-grid">
-      <!-- Row 1 -->
-      <input type="text" id="iblock" placeholder="Block Name (e.g. Block A)">
-      <input type="text" id="ispecies" placeholder="Species (e.g. Oak)">
       
-      <!-- Row 2 -->
+      <!-- app.js must populate #iblock from blocks data and #ispecies from species data -->
+      <select id="iblock">
+        <option value="" disabled selected>Select Block</option>
+      </select>
+      <select id="ispecies">
+        <option value="" disabled selected>Select Species</option>
+      </select>
+
       <input type="number" id="icount" placeholder="Tree Count">
       <input type="date" id="idate">
     </div>
     <button onclick="addRecord()">Add Record</button>
   </div>
 
-  <!-- STATS GRID -->
   <div class="stats-grid">
     <div class="stat-card">
       <p>Total Trees</p>
@@ -40,7 +42,6 @@
     </div>
   </div>
 
-  <!-- PIE CHART CARD -->
   <div class="chart-card">
     <h3>Trees Distribution by Species</h3>
     <div style="position: relative; height: 350px; width: 100%;">
@@ -48,13 +49,13 @@
     </div>
   </div>
 
-  <!-- TABLE CONTAINER -->
   <div class="table-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <h3 style="margin: 0;">All Records</h3>
-      <input type="text" id="inv-search" placeholder="Search..." onkeyup="searchRecords()" style="width: 200px; margin:0;">
+    <!-- FIX: Removed inline margin:0 on search input -->
+    <div class="table-header">
+      <h3>All Records</h3>
+      <input type="text" id="inv-search" placeholder="Search..." onkeyup="searchRecords()">
     </div>
-    
+
     <table>
       <thead>
         <tr>
@@ -66,7 +67,6 @@
   </div>
 
 </div>
-<!-- END WRAPPER -->
 
 <hr>
 <p><a href="dashboard.html">Back to Dashboard</a></p>

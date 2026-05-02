@@ -1,30 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Forest Inventory</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Main Header Section -->
+<!--  Auth guard — app.js should call requireAuth() at top of this page's init -->
+
 <div class="dashboard-header">
-  <!-- Left Side: Title and Date -->
   <div class="header-text">
     <h1>Forest Inventory</h1>
     <p id="date"></p>
   </div>
+
   
-  <!-- Right Side: User Info and Controls -->
-  <div style="display: flex; align-items: center; gap: 20px;">
-    
-    <!-- User Info (Welcome & Badge) -->
-    <div style="text-align: right;">
-      <p id="welcome-msg" style="margin:0; font-weight: 600; color: var(--text);">Welcome, User</p>
-      <!-- Role Badge -->
-      <span id="user-role" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; color: white; text-transform: uppercase; letter-spacing: 0.5px;">Role</span>
+  <div class="header-controls">
+    <div class="user-info">
+      <p id="welcome-msg">Welcome, User</p>
+      <span id="user-role">Role</span>
     </div>
 
-    <!-- Dark Mode Toggle -->
     <div class="theme-switch-wrapper">
       <label class="theme-switch">
         <input type="checkbox" id="theme-toggle-checkbox">
@@ -35,7 +33,6 @@
   </div>
 </div>
 
-<!-- Statistics Grid -->
 <div class="stats-container">
   <div class="stat-box">
     <h4>Total Forests</h4>
@@ -55,7 +52,6 @@
   </div>
 </div>
 
-<!-- Recent Forests Table (Admin Only) -->
 <div class="table-container admin-only">
   <h3>Recent Forests</h3>
   <table>
@@ -70,7 +66,6 @@
   </table>
 </div>
 
-<!-- Recent Inventory Table -->
 <div class="table-container">
   <h3>Recent Inventory</h3>
   <table>
@@ -88,17 +83,14 @@
 
 <hr>
 
-<!-- Navigation Links -->
-<p style="text-align:center; margin-top: 20px;">
-  <!-- Added admin-only class to management links -->
-  <a href="forests.html" class="admin-only" style="margin: 0 10px;">Forests</a>
-  <a href="blocks.html" class="admin-only" style="margin: 0 10px;">Blocks</a>
-  <a href="species.html" class="admin-only" style="margin: 0 10px;">Species</a>
-  
-  <!-- Inventory and Logout are visible to everyone -->
-  <a href="inventory.html" style="margin: 0 10px;">Inventory</a>
-  <a href="#" onclick="logout()" style="color:var(--danger); margin: 0 10px;">Logout</a>
-</p>
+<!-- FIX: Replaced inline styles on nav links with a CSS class -->
+<nav class="page-nav">
+  <a href="forests.html" class="admin-only">Forests</a>
+  <a href="blocks.html" class="admin-only">Blocks</a>
+  <a href="species.html" class="admin-only">Species</a>
+  <a href="inventory.html">Inventory</a>
+  <a href="#" onclick="logout()" class="nav-danger">Logout</a>
+</nav>
 
 <script src="app.js"></script>
 </body>

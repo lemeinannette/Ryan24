@@ -334,21 +334,62 @@ function searchBlocks() {
 // --- 9. INVENTORY ---
 let myChart = null;
 
+// Cache fetched data so filterBlocksByForest() doesn't re-fetch
+let _allBlocks  = [];
+let _allForests = [];
+
 async function populateInventoryDropdowns() {
-  const [blocks, species] = await Promise.all([getData("blocks"), getData("species")]);
+  const [blocks, forests, species] = await Promise.all([
+    getData("blocks"),
+    getData("forests"),
+    getData("species"),
+  ]);
 
-  const blockSelect   = document.getElementById("iblock");
-  const speciesSelect = document.getElementById("ispecies");
+  // Cache for use in filterBlocksByForest()
+  _allBlocks  = blocks;
+  _allForests = forests;
 
-  if (blockSelect) {
-    blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>'
-      + blocks.map(b => `<option value="${b.name}">${b.name}</option>`).join("");
+  // Populate forest selector
+  const forestSelect = document.getElementById("iforest");
+  if (forestSelect) {
+    forestSelect.innerHTML = '<option value="" disabled selected>Select Forest</option>'
+      + forests.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
   }
 
+  // Block select starts disabled until a forest is chosen
+  const blockSelect = document.getElementById("iblock");
+  if (blockSelect) {
+    blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>';
+    blockSelect.disabled = true;
+  }
+
+  // Populate species selector
+  const speciesSelect = document.getElementById("ispecies");
   if (speciesSelect) {
     speciesSelect.innerHTML = '<option value="" disabled selected>Select Species</option>'
       + species.map(s => `<option value="${s.name}">${s.name}</option>`).join("");
   }
+}
+
+// Called when the user changes the forest select — filters block options
+function filterBlocksByForest() {
+  const forestId    = document.getElementById("iforest").value;
+  const blockSelect = document.getElementById("iblock");
+  if (!blockSelect) return;
+
+  const forestBlocks = _allBlocks.filter(b => b.forestId == forestId);
+
+  if (forestBlocks.length === 0) {
+    blockSelect.innerHTML = '<option value="" disabled selected>No blocks in this forest</option>';
+    blockSelect.disabled = true;
+  } else {
+    blockSelect.innerHTML = '<option value="" disabled selected>Select Block</option>'
+      + forestBlocks.map(b => `<option value="${b.name}">${b.name}</option>`).join("");
+    blockSelect.disabled = false;
+  }
+
+  // Reset block selection when forest changes
+  blockSelect.selectedIndex = 0;
 }
 
 async function loadInventory() {
@@ -366,7 +407,16 @@ async function loadInventory() {
     totalTrees += count;
     const sName = rec.speciesName || "Unknown";
     chartData[sName] = (chartData[sName] || 0) + count;
-    return `<tr><td>${rec.id}</td><td>${rec.blockName || 'N/A'}</td><td>${sName}</td><td>${count}</td><td>${rec.date}</td><td><button onclick="deleteRecord(${rec.id})">Delete</button></td></tr>`;
+    // Added Forest column — stored as forestName on the record
+    return `<tr>
+      <td>${rec.id}</td>
+      <td>${rec.forestName || 'N/A'}</td>
+      <td>${rec.blockName  || 'N/A'}</td>
+      <td>${sName}</td>
+      <td>${count}</td>
+      <td>${rec.date}</td>
+      <td><button onclick="deleteRecord(${rec.id})">Delete</button></td>
+    </tr>`;
   }).join("");
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
@@ -377,26 +427,42 @@ async function loadInventory() {
 }
 
 async function addRecord() {
+  const forestId    = document.getElementById("iforest").value;
   const blockName   = document.getElementById("iblock").value;
   const speciesName = document.getElementById("ispecies").value;
   const count       = document.getElementById("icount").value;
   const date        = document.getElementById("idate").value;
 
-  if (!blockName || !speciesName || !count || !date) {
+  if (!forestId || !blockName || !speciesName || !count || !date) {
     alert("Please fill in all fields.");
     return;
   }
 
+  // Resolve the forest name from the cached list so we can store it
+  const forest     = _allForests.find(f => f.id == forestId);
+  const forestName = forest ? forest.name : "Unknown";
+
   const inventory = await getData("inventory");
   const newId = inventory.length > 0 ? inventory[inventory.length - 1].id + 1 : 1;
 
-  await sendData("POST", "inventory", { id: newId, blockName, speciesName, count: parseInt(count), date });
+  await sendData("POST", "inventory", {
+    id: newId,
+    forestName,
+    blockName,
+    speciesName,
+    count: parseInt(count),
+    date,
+  });
 
   alert("Record added.");
-  document.getElementById("iblock").selectedIndex   = 0;
+
+  // Reset form — block select goes back to disabled until a forest is picked again
+  document.getElementById("iforest").selectedIndex  = 0;
+  document.getElementById("iblock").innerHTML       = '<option value="" disabled selected>Select Block</option>';
+  document.getElementById("iblock").disabled        = true;
   document.getElementById("ispecies").selectedIndex = 0;
-  document.getElementById("icount").value = "";
-  document.getElementById("idate").value  = "";
+  document.getElementById("icount").value           = "";
+  document.getElementById("idate").value            = "";
 
   await loadInventory();
 }
@@ -423,18 +489,19 @@ function renderPieChart(data) {
   const labels = Object.keys(data);
   const values = Object.values(data);
 
-  const baseColors = [
-    'rgba(46, 125, 50, 0.8)',
-    'rgba(255, 193, 7, 0.8)',
-    'rgba(33, 150, 243, 0.8)',
-    'rgba(233, 30, 99, 0.8)',
-    'rgba(156, 39, 176, 0.8)',
-    'rgba(0, 188, 212, 0.8)',
-    'rgba(255, 87, 34, 0.8)',
+  // Read all colours from CSS custom properties — no hardcoded values in JS
+  const style = getComputedStyle(document.body);
+  const textColor   = style.getPropertyValue("--chart-text").trim();
+  const borderColor = style.getPropertyValue("--chart-border").trim();
+  const baseColors  = [
+    style.getPropertyValue("--chart-1").trim(),
+    style.getPropertyValue("--chart-2").trim(),
+    style.getPropertyValue("--chart-3").trim(),
+    style.getPropertyValue("--chart-4").trim(),
+    style.getPropertyValue("--chart-5").trim(),
+    style.getPropertyValue("--chart-6").trim(),
+    style.getPropertyValue("--chart-7").trim(),
   ];
-
-  const isDark    = document.body.classList.contains("dark");
-  const textColor = isDark ? '#e2f0e8' : '#1b3a27';
 
   myChart = new Chart(ctx, {
     type: 'pie',
@@ -443,7 +510,7 @@ function renderPieChart(data) {
       datasets: [{
         data: values,
         backgroundColor: labels.map((_, i) => baseColors[i % baseColors.length]),
-        borderColor: isDark ? '#132a1c' : '#ffffff',
+        borderColor,
         borderWidth: 4,
         hoverOffset: 15,
       }],
@@ -455,7 +522,7 @@ function renderPieChart(data) {
         legend: {
           position: 'bottom',
           labels: {
-            font: { family: "'Segoe UI', sans-serif", size: 14 },
+            font: { family: style.getPropertyValue("--font").trim(), size: 14 },
             color: textColor,
             padding: 20,
             usePointStyle: true,

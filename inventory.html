@@ -16,17 +16,25 @@
   <div class="form-card">
     <h3>Add New Record</h3>
     <div class="form-grid">
-      
-      <!-- app.js must populate #iblock from blocks data and #ispecies from species data -->
-      <select id="iblock">
+
+      <!-- Step 1: Pick a forest — block dropdown filters based on this -->
+      <select id="iforest" onchange="filterBlocksByForest()">
+        <option value="" disabled selected>Select Forest</option>
+      </select>
+
+      <!-- Step 2: Pick a block within that forest -->
+      <select id="iblock" disabled>
         <option value="" disabled selected>Select Block</option>
       </select>
+
+      <!-- Step 3: Species, count, date -->
       <select id="ispecies">
         <option value="" disabled selected>Select Species</option>
       </select>
 
-      <input type="number" id="icount" placeholder="Tree Count">
+      <input type="number" id="icount" placeholder="Tree Count" min="1">
       <input type="date" id="idate">
+
     </div>
     <button onclick="addRecord()">Add Record</button>
   </div>
@@ -44,13 +52,12 @@
 
   <div class="chart-card">
     <h3>Trees Distribution by Species</h3>
-    <div style="position: relative; height: 350px; width: 100%;">
+    <div class="chart-wrap">
       <canvas id="speciesChart"></canvas>
     </div>
   </div>
 
   <div class="table-container">
-    <!-- FIX: Removed inline margin:0 on search input -->
     <div class="table-header">
       <h3>All Records</h3>
       <input type="text" id="inv-search" placeholder="Search..." onkeyup="searchRecords()">
@@ -59,7 +66,7 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th><th>Block</th><th>Species</th><th>Count</th><th>Date</th><th>Action</th>
+          <th>ID</th><th>Forest</th><th>Block</th><th>Species</th><th>Count</th><th>Date</th><th>Action</th>
         </tr>
       </thead>
       <tbody id="inv-tbody"></tbody>

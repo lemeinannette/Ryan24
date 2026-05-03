@@ -29,6 +29,24 @@
       "fullname": "LEMEIN ANNETTE",
       "password": "Lemein@1",
       "role": "User"
+    },
+    {
+      "id": "USR-106",
+      "fullname": "Jacob Jane",
+      "password": "Jacob@14",
+      "role": "User"
+    },
+    {
+      "id": "USR-108",
+      "fullname": "Sarah Abraham",
+      "password": "Sarah@12",
+      "role": "User"
+    },
+    {
+      "id": "USR-110",
+      "fullname": "Anna Marryane",
+      "password": "Anna@213",
+      "role": "User"
     }
   ],
   "forests": [
@@ -38,6 +56,13 @@
       "county": "General",
       "location": "HQ",
       "area": 50
+    },
+    {
+      "name": "Nairobi Forest",
+      "location": "Nairobi",
+      "county": "Nairobi",
+      "area": 4500,
+      "id": 2
     }
   ],
   "species": [
@@ -74,6 +99,12 @@
       "name": "Block B",
       "forestId": 1,
       "size": 20
+    },
+    {
+      "name": "Block C",
+      "forestId": 2,
+      "size": 65,
+      "id": 3
     }
   ],
   "inventory": [
@@ -118,6 +149,13 @@
       "speciesName": "Cactus",
       "count": 5,
       "date": "2026-05-01"
+    },
+    {
+      "id": 7,
+      "blockName": "Block B",
+      "speciesName": "Maple",
+      "count": 6,
+      "date": "2026-05-02"
     }
   ]
 }

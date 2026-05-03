@@ -1,4 +1,4 @@
-/* 1. CSS VARIABLES (Light Mode Defaults) */
+/* 1. CSS VARIABLES (Light Mode Defaults)*/
 :root {
   --bg:              #f4f7f6;
   --surface:         #ffffff;
@@ -16,6 +16,17 @@
   --radius:          16px;
   --radius-sm:       8px;
   --font:            'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Chart colours — read by JS via getComputedStyle, never hardcoded there */
+  --chart-text:   #1b3a27;
+  --chart-border: #ffffff;
+  --chart-1: rgba(46, 125, 50, 0.8);
+  --chart-2: rgba(255, 193, 7, 0.8);
+  --chart-3: rgba(33, 150, 243, 0.8);
+  --chart-4: rgba(233, 30, 99, 0.8);
+  --chart-5: rgba(156, 39, 176, 0.8);
+  --chart-6: rgba(0, 188, 212, 0.8);
+  --chart-7: rgba(255, 87, 34, 0.8);
 }
 
 
@@ -47,7 +58,7 @@ body.auth-page {
 }
 
 
-/* 3. TYPOGRAPHY */
+/* 3. TYPOGRAPHY*/
 h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -181,7 +192,7 @@ select {
 .form-card button { margin-top: 20px; }
 
 
-/*6. BUTTONS*/
+/* 6. BUTTONS */
 button {
   width: 100%;
   padding: 14px;
@@ -215,7 +226,7 @@ table button {
 table button:hover { background: var(--danger); color: white; }
 
 
-/* 7. TABLES */
+/* 7. TABLES*/
 .table-container {
   background: var(--surface);
   border-radius: var(--radius);
@@ -374,7 +385,7 @@ tr:hover td { background-color: #fafafa; }
 .page-nav .nav-danger { color: var(--danger); }
 
 
-/*9. PAGE CONTENT WRAPPER (inventory, blocks, etc.) */
+/* 9. PAGE CONTENT WRAPPER (inventory, blocks, etc.) */
 .page-content { max-width: 900px; margin: 0 auto; }
 
 .page-content .stats-grid,
@@ -401,7 +412,7 @@ tr:hover td { background-color: #fafafa; }
 .stat-card span { display: block; margin-top: 10px; font-size: 2rem; font-weight: 700; color: var(--green); }
 
 
-/* 11. CHART */
+/* 11. CHART*/
 .chart-card {
   background: var(--surface);
   padding: 30px;
@@ -411,7 +422,8 @@ tr:hover td { background-color: #fafafa; }
   max-width: 800px;
 }
 
-.chart-card > div {
+.chart-card > div,
+.chart-wrap {
   position: relative;
   height: 350px;
   width: 100%;
@@ -423,7 +435,7 @@ tr:hover td { background-color: #fafafa; }
 }
 
 
-/*12. DARK MODE TOGGLE SWITCH */
+/* 12. DARK MODE TOGGLE SWITCH */
 .theme-switch-wrapper {
   display: flex;
   align-items: center;
@@ -471,7 +483,7 @@ input:checked + .slider { background-color: var(--green); }
 input:checked + .slider::before { transform: translateX(22px); }
 
 
-/* 13. DARK MODE  (class = "dark", not "dark-mode") */
+/* 13. DARK MODE  (class = "dark", not "dark-mode")*/
 body.dark {
   --bg:           #070d0a;
   --surface:      #0e1c14;
@@ -486,6 +498,10 @@ body.dark {
   --input-bg:     #132a1c;
   --shadow:       0 4px 24px rgba(0,0,0,0.4);
   background: linear-gradient(120deg, #050807 0%, #0e1c14 100%);
+
+  /* Chart colours for dark mode */
+  --chart-text:   #e2f0e8;
+  --chart-border: #132a1c;
 }
 
 body.dark.auth-page {
@@ -549,7 +565,7 @@ body.dark .user-info p { color: var(--text); }
 body.dark #speciesChart { filter: brightness(1.1); }
 
 
-/* 14. RESPONSIVE*/
+/* 14. RESPONSIVE */
 @media (max-width: 768px) {
   body { padding: 20px 15px; }
   .form-card { padding: 30px 20px; }
